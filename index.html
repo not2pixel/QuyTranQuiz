@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dũng Quý Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ── RESET & ROOT ── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f1a;
+  --card:#151828;
+  --card2:#1c2035;
+  --accent:#f5c842;
+  --accent2:#f97316;
+  --green:#22c55e;
+  --red:#ef4444;
+  --blue:#38bdf8;
+  --t1:#f8fafc;
+  --t2:#94a3b8;
+  --t3:#475569;
+  --bd:rgba(255,255,255,.07);
+  --fh:'Baloo 2',sans-serif;
+  --fb:'Nunito',sans-serif;
+  --r:14px;
+}
+body{
+  background:var(--bg);
+  color:var(--t1);
+  font-family:var(--fb);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(245,200,66,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(249,115,22,.07) 0%, transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── LAYOUT ── */
+#app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:20px 16px 60px;}
+
+/* ── HEADER ── */
+.site-header{
+  text-align:center;padding:40px 0 32px;
+}
+.site-header .logo-icon{
+  font-size:56px;line-height:1;
+  filter:drop-shadow(0 0 20px rgba(245,200,66,.5));
+  animation:bounce-logo 2.5s ease-in-out infinite;
+}
+@keyframes bounce-logo{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+.site-header h1{
+  font-family:var(--fh);
+  font-size:clamp(28px,6vw,48px);
+  font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-1px;
+  margin-top:8px;
+}
+.site-header p{
+  color:var(--t2);font-size:15px;margin-top:6px;
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--bd);
+  border-radius:var(--r);
+  padding:28px;
+  margin-bottom:16px;
+}
+.card-title{
+  font-family:var(--fh);
+  font-size:20px;font-weight:800;
+  color:var(--t1);margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;padding:12px 24px;border:none;border-radius:10px;
+  font-family:var(--fb);font-size:14px;font-weight:800;
+  cursor:pointer;transition:transform .15s,filter .15s,box-shadow .15s;
+  text-decoration:none;
+}
+.btn:active{transform:translateY(2px)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#1a0a00;
+  box-shadow:0 4px 0 #a0620a,0 6px 16px rgba(245,200,66,.3);
+}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 6px 0 #a0620a,0 10px 20px rgba(245,200,66,.35)}
+.btn-primary:active{transform:translateY(2px);box-shadow:0 2px 0 #a0620a}
+.btn-success{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#fff;box-shadow:0 4px 0 #14532d;
+}
+.btn-success:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.btn-success:active{transform:translateY(2px);box-shadow:0 2px 0 #14532d}
+.btn-danger{
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:#fff;box-shadow:0 4px 0 #7f1d1d;
+}
+.btn-danger:hover{filter:brightness(1.08)}
+.btn-ghost{
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--bd);
+  color:var(--t2);
+}
+.btn-ghost:hover{background:rgba(255,255,255,.12);color:var(--t1)}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:7px}
+.btn-block{width:100%}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:16px}
+.form-label{
+  display:block;font-size:11px;font-weight:800;
+  color:var(--t2);text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:6px;
+}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,.06);
+  border:1.5px solid var(--bd);border-radius:9px;
+  color:var(--t1);font-size:14px;font-family:var(--fb);
+  transition:border-color .15s,box-shadow .15s;outline:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(245,200,66,.12);
+}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--t3)}
+.form-select option{background:var(--card);color:var(--t1)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.form-row{grid-template-columns:1fr}}
+
+/* ── ANSWER OPTIONS ── */
+.answer-options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.answer-option{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:rgba(255,255,255,.04);
+  border:1.5px solid var(--bd);border-radius:9px;
+}
+.answer-option input[type=text]{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--t1);font-size:14px;font-family:var(--fb);
+}
+.answer-option input[type=text]::placeholder{color:var(--t3)}
+.answer-option .correct-radio{
+  width:18px;height:18px;accent-color:var(--green);cursor:pointer;flex-shrink:0;
+}
+.answer-option .correct-label{
+  font-size:11px;color:var(--t3);white-space:nowrap;
+}
+.add-answer-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 14px;background:rgba(255,255,255,.04);
+  border:1.5px dashed var(--bd);border-radius:9px;
+  color:var(--t2);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s;width:100%;justify-content:center;
+}
+.add-answer-btn:hover{background:rgba(255,255,255,.08);border-color:var(--accent);color:var(--accent)}
+.remove-answer-btn{
+  width:26px;height:26px;border-radius:6px;border:none;
+  background:rgba(239,68,68,.15);color:var(--red);
+  cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background .12s;
+}
+.remove-answer-btn:hover{background:var(--red);color:#fff}
+
+/* ── IMAGE PREVIEW ── */
+.img-preview{
+  width:100%;max-height:200px;object-fit:contain;
+  border-radius:8px;border:1px solid var(--bd);
+  margin-top:8px;display:none;
+}
+.img-preview.show{display:block}
+
+/* ── QUESTION LIST (ADMIN) ── */
+.q-list{display:flex;flex-direction:column;gap:10px}
+.q-item{
+  background:var(--card2);border:1px solid var(--bd);
+  border-radius:10px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.q-item .q-num{
+  font-family:var(--fh);font-size:13px;font-weight:800;
+  color:var(--accent);background:rgba(245,200,66,.1);
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.q-item .q-text{flex:1;font-size:13px;color:var(--t1);line-height:1.4}
+.q-item .q-actions{display:flex;gap:6px;flex-shrink:0}
+.q-thumb{
+  width:40px;height:40px;border-radius:6px;
+  object-fit:cover;flex-shrink:0;
+  border:1px solid var(--bd);
+}
+
+/* ── QUIZ UI ── */
+.quiz-progress{
+  background:var(--card2);border-radius:100px;
+  height:8px;margin-bottom:24px;overflow:hidden;
+}
+.quiz-progress-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:100px;
+  transition:width .4s cubic-bezier(.34,1.4,.64,1);
+}
+.quiz-info{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:8px;font-size:13px;color:var(--t2);font-weight:600;
+}
+.question-card{
+  background:var(--card);border:1px solid var(--bd);
+  border-radius:var(--r);padding:28px;
+  margin-bottom:16px;
+  animation:slide-in .3s cubic-bezier(.34,1.2,.64,1);
+}
+@keyframes slide-in{
+  from{opacity:0;transform:translateY(16px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.question-text{
+  font-family:var(--fh);font-size:clamp(16px,3vw,22px);
+  font-weight:800;color:var(--t1);line-height:1.4;
+  margin-bottom:20px;
+}
+.question-img{
+  width:100%;max-height:260px;object-fit:contain;
+  border-radius:10px;border:1px solid var(--bd);
+  margin-bottom:20px;
+}
+.answers-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media(max-width:500px){.answers-grid{grid-template-columns:1fr}}
+.answer-btn{
+  padding:14px 16px;
+  background:var(--card2);
+  border:2px solid var(--bd);border-radius:10px;
+  color:var(--t1);font-size:14px;font-weight:700;
+  font-family:var(--fb);
+  cursor:pointer;text-align:left;
+  transition:all .15s;
+  display:flex;align-items:center;gap:10px;
+}
+.answer-btn:hover:not(:disabled){
+  border-color:var(--accent);
+  background:rgba(245,200,66,.08);
+  transform:translateY(-1px);
+}
+.answer-btn.selected{
+  border-color:var(--accent);
+  background:rgba(245,200,66,.12);
+}
+.answer-btn:disabled{cursor:not-allowed}
+.answer-btn .ans-letter{
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:var(--t2);
+  flex-shrink:0;
+}
+.answer-btn.selected .ans-letter{background:var(--accent);color:#1a0a00}
+
+/* ── RESULTS ── */
+.result-header{
+  text-align:center;padding:32px 20px;
+}
+.score-circle{
+  width:140px;height:140px;border-radius:50%;
+  border:6px solid var(--accent);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  background:rgba(245,200,66,.08);
+  box-shadow:0 0 40px rgba(245,200,66,.2);
+}
+.score-num{
+  font-family:var(--fh);font-size:42px;font-weight:900;
+  color:var(--accent);line-height:1;
+}
+.score-total{font-size:14px;color:var(--t2);font-weight:600}
+.result-title{
+  font-family:var(--fh);font-size:28px;font-weight:900;
+  color:var(--t1);margin-bottom:8px;
+}
+.result-sub{color:var(--t2);font-size:15px}
+
+.result-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.result-item{
+  background:var(--card2);border-radius:10px;
+  border-left:4px solid var(--bd);
+  padding:14px 16px;
+}
+.result-item.correct{border-left-color:var(--green)}
+.result-item.wrong{border-left-color:var(--red)}
+.result-item .ri-q{
+  font-size:13px;font-weight:700;color:var(--t1);
+  margin-bottom:6px;line-height:1.4;
+}
+.result-item .ri-answers{display:flex;flex-direction:column;gap:4px}
+.result-item .ri-ans{
+  font-size:12px;padding:4px 10px;border-radius:5px;
+  display:flex;align-items:center;gap:6px;
+}
+.ri-ans.correct-ans{background:rgba(34,197,94,.15);color:var(--green)}
+.ri-ans.wrong-ans{background:rgba(239,68,68,.12);color:var(--red)}
+.ri-ans.user-ans{font-weight:700}
+
+/* ── EXPORT CARD (hidden, used for PNG/PDF) ── */
+#export-card{
+  position:fixed;left:-9999px;top:0;
+  width:800px;
+  background:#0d0f1a;
+  font-family:'Nunito',sans-serif;
+  padding:48px;
+  color:#f8fafc;
+}
+#export-card .ec-header{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:32px;
+  padding-bottom:24px;
+  border-bottom:2px solid rgba(245,200,66,.3);
+}
+#export-card .ec-logo{font-size:48px}
+#export-card .ec-title{
+  font-family:'Baloo 2',sans-serif;
+  font-size:32px;font-weight:900;
+  background:linear-gradient(135deg,#f5c842,#f97316);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+#export-card .ec-sub{font-size:14px;color:#94a3b8;margin-top:4px}
+#export-card .ec-score{
+  text-align:center;margin-bottom:32px;
+}
+#export-card .ec-score-big{
+  font-family:'Baloo 2',sans-serif;
+  font-size:72px;font-weight:900;
+  color:#f5c842;line-height:1;
+}
+#export-card .ec-score-label{
+  font-size:18px;color:#94a3b8;margin-top:4px;
+}
+#export-card .ec-stats{
+  display:flex;justify-content:center;gap:32px;
+  margin-bottom:32px;
+}
+#export-card .ec-stat{
+  text-align:center;
+  background:rgba(255,255,255,.05);
+  border-radius:12px;padding:16px 24px;
+  min-width:120px;
+}
+#export-card .ec-stat-num{
+  font-family:'Baloo 2',sans-serif;
+  font-size:28px;font-weight:900;
+}
+#export-card .ec-stat-label{font-size:12px;color:#94a3b8;margin-top:4px}
+#export-card .ec-correct .ec-stat-num{color:#22c55e}
+#export-card .ec-wrong .ec-stat-num{color:#ef4444}
+#export-card .ec-footer{
+  text-align:center;font-size:13px;color:#475569;
+  margin-top:32px;padding-top:20px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--card2);border:1px solid var(--bd);
+  border-radius:100px;padding:10px 20px;
+  font-size:13px;font-weight:700;color:var(--t1);
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  transition:transform .3s cubic-bezier(.34,1.4,.64,1),opacity .3s;
+  opacity:0;z-index:9999;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:var(--red)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:1000;display:flex;align-items:center;justify-content:center;
+  padding:20px;animation:_fi .15s ease;
+}
+@keyframes _fi{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--card);border:1px solid rgba(245,200,66,.2);
+  border-radius:var(--r);padding:32px;
+  width:100%;max-width:420px;
+  animation:_pop .2s cubic-bezier(.34,1.2,.64,1);
+}
+@keyframes _pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.modal-title{
+  font-family:var(--fh);font-size:22px;font-weight:900;
+  color:var(--t1);margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--card2);border-radius:10px;padding:4px}
+.tab{
+  flex:1;padding:9px;border-radius:7px;border:none;
+  background:transparent;color:var(--t2);
+  font-family:var(--fb);font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+}
+.tab.active{background:var(--card);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+/* ── BADGE ── */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:3px 8px;border-radius:5px;
+  font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;
+}
+.badge-yellow{background:rgba(245,200,66,.15);color:var(--accent)}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red)}
+
+/* ── EMPTY STATE ── */
+.empty{
+  text-align:center;padding:48px 20px;color:var(--t3);
+}
+.empty .empty-icon{font-size:48px;margin-bottom:12px}
+.empty p{font-size:14px}
+
+/* ── EXPORT BUTTONS ── */
+.export-row{
+  display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+  margin-top:20px;
+}
+
+/* ── ADMIN NAV ── */
+.admin-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:20px;
+}
+.admin-badge{
+  background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.2);
+  border-radius:8px;padding:6px 14px;
+  font-size:12px;font-weight:800;color:var(--accent);
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ── LOADING ── */
+.spinner{
+  width:40px;height:40px;border-radius:50%;
+  border:3px solid var(--bd);
+  border-top-color:var(--accent);
+  animation:spin .7s linear infinite;
+  margin:0 auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state{text-align:center;padding:40px;color:var(--t2);font-size:14px}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="site-header">
+    <div class="logo-icon">🎯</div>
+    <h1>Dũng Quý Quiz</h1>
+    <p>Kiểm tra hiểu biết của bạn về Dũng Quý!</p>
+  </div>
+
+  <!-- MAIN CONTENT (rendered by JS) -->
+  <div id="main"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- EXPORT CARD (hidden) -->
+<div id="export-card">
+  <div class="ec-header">
+    <div class="ec-logo">🎯</div>
+    <div>
+      <div class="ec-title">Dũng Quý Quiz</div>
+      <div class="ec-sub" id="ec-date"></div>
+    </div>
+  </div>
+  <div class="ec-score">
+    <div class="ec-score-big" id="ec-score-num">0/20</div>
+    <div class="ec-score-label">Điểm số của bạn</div>
+  </div>
+  <div class="ec-stats">
+    <div class="ec-stat ec-correct">
+      <div class="ec-stat-num" id="ec-correct">0</div>
+      <div class="ec-stat-label">✅ Đúng</div>
+    </div>
+    <div class="ec-stat ec-wrong">
+      <div class="ec-stat-num" id="ec-wrong">0</div>
+      <div class="ec-stat-label">❌ Sai</div>
+    </div>
+    <div class="ec-stat">
+      <div class="ec-stat-num" style="color:#38bdf8" id="ec-pct">0%</div>
+      <div class="ec-stat-label">📊 Tỉ lệ đúng</div>
+    </div>
+  </div>
+  <div class="ec-footer">dungquyquiz.com • Kết quả được tạo tự động</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIG — thay bằng Supabase credentials của bạn
+// ═══════════════════════════════════════════════════
+const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_KEY = 'YOUR_ANON_KEY';
+const ADMIN_PASSWORD = 'dungquy2025'; // đổi password ở đây
+
+// ─── SUPABASE MIGRATION SQL ───────────────────────
+// Chạy SQL này trong Supabase SQL Editor để tạo database:
+/*
+-- Xóa bảng cũ nếu có
+DROP TABLE IF EXISTS answers CASCADE;
+DROP TABLE IF EXISTS questions CASCADE;
+
+-- Bảng câu hỏi
+CREATE TABLE questions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  question TEXT NOT NULL,
+  image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Bảng câu trả lời
+CREATE TABLE answers (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  question_id UUID REFERENCES questions(id) ON DELETE CASCADE,
+  answer_text TEXT NOT NULL,
+  is_correct BOOLEAN DEFAULT FALSE,
+  sort_order INT DEFAULT 0
+);
+
+-- Enable RLS
+ALTER TABLE questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE answers ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read
+CREATE POLICY "Public read questions" ON questions FOR SELECT USING (true);
+CREATE POLICY "Public read answers" ON answers FOR SELECT USING (true);
+
+-- Allow all operations (admin controls via password in app)
+CREATE POLICY "Allow all questions" ON questions FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all answers" ON answers FOR ALL USING (true) WITH CHECK (true);
+*/
+
+// ═══════════════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── STATE ──
+let state = {
+  view: 'home',       // home | quiz | result | admin | login
+  questions: [],
+  quizQuestions: [],
+  currentQ: 0,
+  userAnswers: {},    // questionId → answerId
+  isAdmin: false,
+  editingId: null,
+};
+
+// ── ROUTER ──
+function navigate(view, extra = {}) {
+  state.view = view;
+  Object.assign(state, extra);
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── SUPABASE HELPERS ──
+async function loadQuestions() {
+  const { data, error } = await sb
+    .from('questions')
+    .select('*, answers(*)')
+    .order('created_at', { ascending: false });
+  if (error) { showToast('Lỗi tải câu hỏi: ' + error.message, 'error'); return []; }
+  return data || [];
+}
+
+async function saveQuestion(question, imageUrl, answers) {
+  // Insert question
+  const { data: q, error: qErr } = await sb
+    .from('questions')
+    .insert({ question, image_url: imageUrl || null })
+    .select().single();
+  if (qErr) throw qErr;
+
+  // Insert answers
+  const ansRows = answers.map((a, i) => ({
+    question_id: q.id,
+    answer_text: a.text,
+    is_correct: a.correct,
+    sort_order: i
+  }));
+  const { error: aErr } = await sb.from('answers').insert(ansRows);
+  if (aErr) throw aErr;
+  return q;
+}
+
+async function updateQuestion(id, question, imageUrl, answers) {
+  const { error: qErr } = await sb
+    .from('questions')
+    .update({ question, image_url: imageUrl || null })
+    .eq('id', id);
+  if (qErr) throw qErr;
+
+  // Delete old answers, insert new
+  await sb.from('answers').delete().eq('question_id', id);
+  const ansRows = answers.map((a, i) => ({
+    question_id: id,
+    answer_text: a.text,
+    is_correct: a.correct,
+    sort_order: i
+  }));
+  const { error: aErr } = await sb.from('answers').insert(ansRows);
+  if (aErr) throw aErr;
+}
+
+async function deleteQuestion(id) {
+  const { error } = await sb.from('questions').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ── SHUFFLE ──
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── LETTERS ──
+const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+// ── RENDER ──
+function render() {
+  const main = document.getElementById('main');
+  switch (state.view) {
+    case 'home':    main.innerHTML = renderHome(); break;
+    case 'quiz':    main.innerHTML = renderQuiz(); break;
+    case 'result':  main.innerHTML = renderResult(); break;
+    case 'admin':   main.innerHTML = renderAdmin(); break;
+    case 'login':   main.innerHTML = renderLogin(); break;
+    case 'loading': main.innerHTML = `<div class="loading-state"><div class="spinner"></div><p style="margin-top:16px">Đang tải...</p></div>`; break;
+  }
+  attachHandlers();
+}
+
+// ═══════════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════════
+
+function renderHome() {
+  const total = state.questions.length;
+  return `
+  <div class="card" style="text-align:center;padding:48px 32px">
+    <div style="font-size:64px;margin-bottom:16px">🏆</div>
+    <div class="card-title" style="justify-content:center;font-size:26px">Sẵn sàng thử thách?</div>
+    <p style="color:var(--t2);font-size:15px;margin-bottom:8px">
+      Ngân hàng hiện có <span style="color:var(--accent);font-weight:800">${total} câu hỏi</span>.
+      Bạn sẽ được random <strong style="color:var(--t1)">20 câu</strong> mỗi lần chơi.
+    </p>
+    <p style="color:var(--t3);font-size:13px;margin-bottom:32px">Chúc bạn may mắn! 🍀</p>
+    ${total === 0
+      ? `<p style="color:var(--red);font-size:14px;margin-bottom:20px">⚠️ Chưa có câu hỏi nào. Admin cần thêm câu hỏi trước!</p>`
+      : `<button class="btn btn-primary" style="font-size:16px;padding:14px 40px" onclick="startQuiz()">
+          🚀 Bắt đầu Quiz
+        </button>`
+    }
+  </div>
+  <div style="text-align:center;margin-top:12px">
+    <button class="btn btn-ghost btn-sm" onclick="navigate('login')">🔐 Admin</button>
+  </div>`;
+}
+
+function renderLogin() {
+  return `
+  <div class="card" style="max-width:400px;margin:0 auto">
+    <div class="card-title">🔐 Đăng nhập Admin</div>
+    <div class="form-group">
+      <label class="form-label">Mật khẩu</label>
+      <input class="form-input" type="password" id="admin-pw" placeholder="Nhập mật khẩu..." onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-primary btn-block" onclick="doLogin()">Đăng nhập</button>
+      <button class="btn btn-ghost" onclick="navigate('home')">Hủy</button>
+    </div>
+  </div>`;
+}
+
+function renderAdmin() {
+  const qs = state.questions;
+  return `
+  <div class="admin-nav">
+    <div class="admin-badge">⚙️ Admin Panel</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="navigate('home')">← Trang chủ</button>
+      <button class="btn btn-danger btn-sm" onclick="doLogout()">Đăng xuất</button>
+    </div>
+  </div>
+
+  <!-- ADD QUESTION -->
+  <div class="card" id="add-form">
+    <div class="card-title">➕ ${state.editingId ? 'Sửa câu hỏi' : 'Thêm câu hỏi mới'}</div>
+    <div class="form-group">
+      <label class="form-label">Câu hỏi *</label>
+      <textarea class="form-textarea" id="q-text" placeholder="Nhập câu hỏi về Dũng Quý...">${state.editData?.question || ''}</textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Hình ảnh (URL hoặc upload)</label>
+      <div class="form-row">
+        <input class="form-input" type="text" id="q-img-url" placeholder="https://..." value="${state.editData?.image_url || ''}" oninput="previewImg(this.value)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="file" id="q-img-file" accept="image/*" style="display:none" onchange="handleImgUpload(this)">
+          <button class="btn btn-ghost btn-block" onclick="document.getElementById('q-img-file').click()">📁 Upload</button>
+        </div>
+      </div>
+      <img id="img-preview" class="img-preview" src="" alt="preview">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Câu trả lời (chọn ✅ câu đúng)</label>
+      <div class="answer-options" id="answer-options">
+        ${renderAnswerOptions(state.editData?.answers || [{text:'',correct:true},{text:'',correct:false}])}
+      </div>
+      <button class="add-answer-btn" onclick="addAnswerOption()">+ Thêm đáp án</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-success" onclick="submitQuestion()">
+        ${state.editingId ? '💾 Lưu thay đổi' : '✅ Thêm câu hỏi'}
+      </button>
+      ${state.editingId ? `<button class="btn btn-ghost" onclick="cancelEdit()">Hủy</button>` : ''}
+    </div>
+  </div>
+
+  <!-- QUESTION LIST -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      <span>📋 Danh sách câu hỏi <span class="badge badge-yellow">${qs.length}</span></span>
+    </div>
+    ${qs.length === 0
+      ? `<div class="empty"><div class="empty-icon">📭</div><p>Chưa có câu hỏi nào</p></div>`
+      : `<div class="q-list">${qs.map((q,i) => `
+          <div class="q-item">
+            <div class="q-num">${i+1}</div>
+            ${q.image_url ? `<img class="q-thumb" src="${q.image_url}" onerror="this.style.display='none'">` : ''}
+            <div class="q-text">${q.question}</div>
+            <div class="q-actions">
+              <button class="btn btn-ghost btn-sm" onclick="editQuestion('${q.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete('${q.id}')">🗑️</button>
+            </div>
+          </div>`).join('')}
+        </div>`
+    }
+  </div>`;
+}
+
+function renderAnswerOptions(answers) {
+  return answers.map((a, i) => `
+    <div class="answer-option" data-idx="${i}">
+      <input type="radio" class="correct-radio" name="correct-ans" value="${i}"
+        ${a.correct ? 'checked' : ''}
+        onchange="setCorrect(${i})">
+      <span class="correct-label">Đúng</span>
+      <input type="text" placeholder="Đáp án ${LETTERS[i]}..." value="${a.text || ''}" data-ans="${i}">
+      <button class="remove-answer-btn" onclick="removeAnswerOption(${i})" ${answers.length <= 2 ? 'disabled style="opacity:.3"' : ''}>×</button>
+    </div>`).join('');
+}
+
+function renderQuiz() {
+  const qs = state.quizQuestions;
+  const idx = state.currentQ;
+  const q = qs[idx];
+  if (!q) return '';
+  const pct = (idx / qs.length) * 100;
+  const selected = state.userAnswers[q.id];
+  const sortedAnswers = [...(q.answers||[])].sort((a,b)=>a.sort_order-b.sort_order);
+
+  return `
+  <div>
+    <div class="quiz-info">
+      <span>Câu ${idx+1} / ${qs.length}</span>
+      <span>${Math.round(pct)}% hoàn thành</span>
+    </div>
+    <div class="quiz-progress">
+      <div class="quiz-progress-bar" style="width:${pct}%"></div>
+    </div>
+    <div class="question-card">
+      ${q.image_url ? `<img class="question-img" src="${q.image_url}" alt="question image" onerror="this.style.display='none'">` : ''}
+      <div class="question-text">${q.question}</div>
+      <div class="answers-grid">
+        ${sortedAnswers.map((a,i) => `
+          <button class="answer-btn ${selected===a.id?'selected':''}"
+            onclick="selectAnswer('${q.id}','${a.id}')">
+            <span class="ans-letter">${LETTERS[i]}</span>
+            <span>${a.answer_text}</span>
+          </button>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+      <button class="btn btn-ghost" onclick="prevQ()" ${idx===0?'disabled style="opacity:.4"':''}>← Trước</button>
+      <span style="color:var(--t3);font-size:13px">${Object.keys(state.userAnswers).length}/${qs.length} đã trả lời</span>
+      ${idx < qs.length-1
+        ? `<button class="btn btn-primary" onclick="nextQ()">Tiếp theo →</button>`
+        : `<button class="btn btn-success" onclick="finishQuiz()">🏁 Nộp bài</button>`
+      }
+    </div>
+  </div>`;
+}
+
+function renderResult() {
+  const qs = state.quizQuestions;
+  let correct = 0;
+  qs.forEach(q => {
+    const userAns = state.userAnswers[q.id];
+    const correctAns = (q.answers||[]).find(a => a.is_correct);
+    if (userAns && correctAns && userAns === correctAns.id) correct++;
+  });
+  const wrong = qs.length - correct;
+  const pct = Math.round((correct / qs.length) * 100);
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '🎉' : pct >= 40 ? '😅' : '😢';
+  const msg = pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Khá tốt!' : pct >= 40 ? 'Cần cố gắng hơn!' : 'Ôn tập thêm nhé!';
+
+  return `
+  <div class="card">
+    <div class="result-header">
+      <div style="font-size:56px;margin-bottom:12px">${emoji}</div>
+      <div class="score-circle">
+        <div class="score-num">${correct}</div>
+        <div class="score-total">/ ${qs.length}</div>
+      </div>
+      <div class="result-title">${msg}</div>
+      <div class="result-sub">Bạn trả lời đúng ${correct}/${qs.length} câu (${pct}%)</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:16px">
+        <span class="badge badge-green">✅ ${correct} đúng</span>
+        <span class="badge badge-red">❌ ${wrong} sai</span>
+      </div>
+    </div>
+
+    <div class="export-row">
+      <button class="btn btn-primary" onclick="exportPNG(${correct},${qs.length},${pct})">🖼️ Tải PNG</button>
+      <button class="btn btn-ghost" onclick="exportPDF(${correct},${qs.length},${pct})">📄 Tải PDF</button>
+      <button class="btn btn-success" onclick="startQuiz()">🔄 Chơi lại</button>
+      <button class="btn btn-ghost" onclick="navigate('home')">🏠 Trang chủ</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Chi tiết kết quả</div>
+    <div class="result-list">
+      ${qs.map((q, i) => {
+        const userAns = state.userAnswers[q.id];
+        const correctAns = (q.answers||[]).find(a => a.is_correct);
+        const isCorrect = userAns && correctAns && userAns === correctAns.id;
+        const sortedAnswers = [...(q.answers||[])].sort((a,b)=>a.sort_order-b.sort_order);
+        return `
+        <div class="result-item ${isCorrect?'correct':'wrong'}">
+          <div class="ri-q">${i+1}. ${q.question}</div>
+          <div class="ri-answers">
+            ${sortedAnswers.map((a, ai) => {
+              let cls = '';
+              if (a.is_correct) cls = 'correct-ans';
+              if (a.id === userAns && !a.is_correct) cls = 'wrong-ans';
+              return `<div class="ri-ans ${cls} ${a.id===userAns?'user-ans':''}">
+                <span>${LETTERS[ai]}.</span>
+                <span>${a.answer_text}</span>
+                ${a.is_correct ? '✅' : ''}
+                ${a.id===userAns && !a.is_correct ? '❌ (Bạn chọn)' : a.id===userAns && a.is_correct ? '👆 Bạn chọn' : ''}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// HANDLERS
+// ═══════════════════════════════════════════════════
+function attachHandlers() {
+  // image preview on load for edit mode
+  const urlInput = document.getElementById('q-img-url');
+  if (urlInput && urlInput.value) previewImg(urlInput.value);
+}
+
+function doLogin() {
+  const pw = document.getElementById('admin-pw')?.value;
+  if (pw === ADMIN_PASSWORD) {
+    state.isAdmin = true;
+    showToast('Đăng nhập thành công! 🎉', 'success');
+    navigate('admin');
+  } else {
+    showToast('Sai mật khẩu!', 'error');
+  }
+}
+
+function doLogout() {
+  state.isAdmin = false;
+  navigate('home');
+  showToast('Đã đăng xuất');
+}
+
+async function startQuiz() {
+  navigate('loading');
+  state.questions = await loadQuestions();
+  if (state.questions.length === 0) {
+    showToast('Chưa có câu hỏi nào!', 'error');
+    navigate('home');
+    return;
+  }
+  const pool = state.questions.filter(q => q.answers && q.answers.length >= 2);
+  state.quizQuestions = shuffle(pool).slice(0, Math.min(20, pool.length));
+  state.currentQ = 0;
+  state.userAnswers = {};
+  navigate('quiz');
+}
+
+function selectAnswer(qId, ansId) {
+  state.userAnswers[qId] = ansId;
+  render();
+}
+
+function nextQ() {
+  if (state.currentQ < state.quizQuestions.length - 1) {
+    state.currentQ++;
+    render();
+  }
+}
+
+function prevQ() {
+  if (state.currentQ > 0) {
+    state.currentQ--;
+    render();
+  }
+}
+
+function finishQuiz() {
+  const unanswered = state.quizQuestions.length - Object.keys(state.userAnswers).length;
+  if (unanswered > 0) {
+    if (!confirm(`Bạn còn ${unanswered} câu chưa trả lời. Vẫn nộp bài?`)) return;
+  }
+  navigate('result');
+}
+
+// ── ADMIN QUESTION FORM ──
+let answerList = [{text:'',correct:true},{text:'',correct:false}];
+
+function getAnswerList() {
+  const opts = document.querySelectorAll('.answer-option');
+  return Array.from(opts).map((opt, i) => ({
+    text: opt.querySelector(`[data-ans="${i}"]`)?.value || '',
+    correct: opt.querySelector('.correct-radio')?.checked || false,
+  }));
+}
+
+function addAnswerOption() {
+  const current = getAnswerList();
+  if (current.length >= 6) { showToast('Tối đa 6 đáp án'); return; }
+  current.push({text:'',correct:false});
+  document.getElementById('answer-options').innerHTML = renderAnswerOptions(current);
+}
+
+function removeAnswerOption(idx) {
+  const current = getAnswerList();
+  if (current.length <= 2) return;
+  current.splice(idx, 1);
+  // ensure at least one correct
+  if (!current.some(a => a.correct)) current[0].correct = true;
+  document.getElementById('answer-options').innerHTML = renderAnswerOptions(current);
+}
+
+function setCorrect(idx) {
+  // radio handles it natively, nothing extra needed
+}
+
+function previewImg(url) {
+  const preview = document.getElementById('img-preview');
+  if (!preview) return;
+  if (url && url.startsWith('http')) {
+    preview.src = url;
+    preview.classList.add('show');
+  } else {
+    preview.classList.remove('show');
+  }
+}
+
+function handleImgUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const urlInput = document.getElementById('q-img-url');
+    if (urlInput) urlInput.value = e.target.result;
+    previewImg(e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitQuestion() {
+  const question = document.getElementById('q-text')?.value?.trim();
+  const imageUrl = document.getElementById('q-img-url')?.value?.trim();
+  const answers = getAnswerList().filter(a => a.text.trim());
+
+  if (!question) { showToast('Nhập câu hỏi!', 'error'); return; }
+  if (answers.length < 2) { showToast('Cần ít nhất 2 đáp án!', 'error'); return; }
+  if (!answers.some(a => a.correct)) { showToast('Chọn đáp án đúng!', 'error'); return; }
+
+  try {
+    if (state.editingId) {
+      await updateQuestion(state.editingId, question, imageUrl, answers);
+      showToast('Đã cập nhật câu hỏi! ✅', 'success');
+    } else {
+      await saveQuestion(question, imageUrl, answers);
+      showToast('Đã thêm câu hỏi! 🎉', 'success');
+    }
+    state.editingId = null;
+    state.editData = null;
+    state.questions = await loadQuestions();
+    navigate('admin');
+  } catch (err) {
+    showToast('Lỗi: ' + err.message, 'error');
+  }
+}
+
+function editQuestion(id) {
+  const q = state.questions.find(x => x.id === id);
+  if (!q) return;
+  state.editingId = id;
+  state.editData = {
+    question: q.question,
+    image_url: q.image_url || '',
+    answers: [...(q.answers||[])].sort((a,b)=>a.sort_order-b.sort_order).map(a=>({text:a.answer_text,correct:a.is_correct}))
+  };
+  navigate('admin');
+  setTimeout(() => document.getElementById('add-form')?.scrollIntoView({behavior:'smooth'}), 100);
+}
+
+function cancelEdit() {
+  state.editingId = null;
+  state.editData = null;
+  navigate('admin');
+}
+
+async function confirmDelete(id) {
+  if (!confirm('Xóa câu hỏi này?')) return;
+  try {
+    await deleteQuestion(id);
+    showToast('Đã xóa!', 'success');
+    state.questions = await loadQuestions();
+    navigate('admin');
+  } catch (err) {
+    showToast('Lỗi: ' + err.message, 'error');
+  }
+}
+
+// ── EXPORT ──
+function prepareExportCard(correct, total, pct) {
+  document.getElementById('ec-score-num').textContent = correct + '/' + total;
+  document.getElementById('ec-correct').textContent = correct;
+  document.getElementById('ec-wrong').textContent = total - correct;
+  document.getElementById('ec-pct').textContent = pct + '%';
+  document.getElementById('ec-date').textContent = new Date().toLocaleDateString('vi-VN', {
+    year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'
+  });
+}
+
+async function exportPNG(correct, total, pct) {
+  showToast('Đang tạo ảnh...', '');
+  prepareExportCard(correct, total, pct);
+  const card = document.getElementById('export-card');
+  card.style.left = '0';
+  await new Promise(r => setTimeout(r, 100));
+  try {
+    const canvas = await html2canvas(card, {
+      backgroundColor: '#0d0f1a',
+      scale: 2,
+      useCORS: true,
+    });
+    card.style.left = '-9999px';
+    const link = document.createElement('a');
+    link.download = `DungQuyQuiz_${correct}-${total}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Đã tải ảnh PNG! 🖼️', 'success');
+  } catch (e) {
+    card.style.left = '-9999px';
+    showToast('Lỗi xuất ảnh', 'error');
+  }
+}
+
+async function exportPDF(correct, total, pct) {
+  showToast('Đang tạo PDF...', '');
+  prepareExportCard(correct, total, pct);
+  const card = document.getElementById('export-card');
+  card.style.left = '0';
+  await new Promise(r => setTimeout(r, 100));
+  try {
+    const canvas = await html2canvas(card, {
+      backgroundColor: '#0d0f1a',
+      scale: 2,
+      useCORS: true,
+    });
+    card.style.left = '-9999px';
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'landscape', unit:'px', format:[800,480] });
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 800, 480);
+    pdf.save(`DungQuyQuiz_${correct}-${total}.pdf`);
+    showToast('Đã tải PDF! 📄', 'success');
+  } catch (e) {
+    card.style.left = '-9999px';
+    showToast('Lỗi xuất PDF', 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+(async () => {
+  navigate('loading');
+  state.questions = await loadQuestions();
+  navigate('home');
+})();
+</script>
+</body>
+</html>
